@@ -4,7 +4,7 @@ Docker image for installing and running tools for LLM agents (MCP, OpenAPI, UVX,
 
 ### Features
 
-- Python / Node.js runtime - includes `python`, `node`, `uvx`, `npx`
+- Python / Node.js / Deno runtime, Rust toolchain - includes `python`, `node`, `uvx`, `npx`, `deno`, `cargo`
 - Includes extra packages for managing MCP/OpenAPI tools and connections
   - [`mcpo`](https://github.com/open-webui/mcpo) - MCP to OpenAPI bridge
   - [`supergateway`](https://github.com/supercorp-ai/supergateway) - MCP STDIO/SSE bridge
