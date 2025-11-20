@@ -1,5 +1,5 @@
 FROM ghcr.io/astral-sh/uv:debian
-RUN apt-get update && apt-get install -y curl jq gnupg git
+RUN apt-get update && apt-get install -y curl jq gnupg git ffmpeg
 
 # From https://github.com/vercel/install-node/
 RUN curl -sfLS https://install-node.vercel.app/lts | FORCE=true bash

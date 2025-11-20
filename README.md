@@ -9,7 +9,7 @@ Docker image for installing and running tools for LLM agents (MCP, OpenAPI, UVX,
   - [`mcpo`](https://github.com/open-webui/mcpo) - MCP to OpenAPI bridge
   - [`supergateway`](https://github.com/supercorp-ai/supergateway) - MCP STDIO/SSE bridge
   - [`@modelcontextprotocol/inspector`](https://github.com/modelcontextprotocol/inspector) - debugging tool for MCP
-- Utils: `curl`, `jq`, `git`
+- Utils: `curl`, `jq`, `git`, `ffmpeg`
 - Easy unified cache at `/app/cache` for all tools
 
 ### Usage
