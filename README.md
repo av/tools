@@ -11,6 +11,7 @@ Docker image for installing and running tools for LLM agents (MCP, OpenAPI, UVX,
   - [`@modelcontextprotocol/inspector`](https://github.com/modelcontextprotocol/inspector) - debugging tool for MCP
 - Utils: `curl`, `jq`, `git`, `ffmpeg`
 - Easy unified cache at `/app/cache` for all tools
+- Scanned with `trivy` for vulnerabilities
 
 ### Usage
 
