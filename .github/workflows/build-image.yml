@@ -86,6 +86,9 @@ jobs:
       security-events: write
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Determine image tag
         id: image-tag
         run: |
