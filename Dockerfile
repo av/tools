@@ -5,7 +5,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uvx /usr/local/bin/uvx
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y curl jq gnupg git ffmpeg && \
+    apt-get install -y curl jq gnupg git ffmpeg gcc && \
     rm -rf /var/lib/apt/lists/*
 
 # From https://github.com/vercel/install-node/
