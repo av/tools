@@ -1,7 +1,16 @@
 FROM ghcr.io/av/tools:latest
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-dev \
+    libpq-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    libjpeg-dev \
+    zlib1g-dev \
+    libfreetype6-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN uv pip install --system --no-cache-dir \
-    # File formats
     PyPDF2 \
     python-docx \
     openpyxl \
@@ -10,17 +19,14 @@ RUN uv pip install --system --no-cache-dir \
     beautifulsoup4 \
     markdownify \
     chardet \
-    # Data analysis
     pandas \
     numpy \
     matplotlib \
     tabulate \
-    # Data access
     requests \
     httpx \
     aiohttp \
     sqlalchemy \
     psycopg2-binary \
-    # Essentials
     pydantic \
     tiktoken
