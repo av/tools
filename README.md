@@ -13,6 +13,20 @@ Docker image for installing and running tools for LLM agents (MCP, OpenAPI, UVX,
 - Easy unified cache at `/app/cache` for all tools
 - Scanned with `trivy` for vulnerabilities
 
+### Variants
+
+| Tag | Description |
+|-----|-------------|
+| `ghcr.io/av/tools:latest` | Base image with runtimes, MCP tooling, and utilities |
+| `ghcr.io/av/tools:agentic` | Extended image with pre-installed Python libraries for agentic workflows |
+
+The `agentic` variant includes Python packages for common agent tasks:
+
+- **File formats** — `PyPDF2`, `python-docx`, `openpyxl`, `Pillow`, `lxml`, `beautifulsoup4`, `markdownify`, `chardet`
+- **Data analysis** — `pandas`, `numpy`, `matplotlib`, `tabulate`
+- **Data access** — `requests`, `httpx`, `aiohttp`, `sqlalchemy`, `psycopg2-binary`
+- **Essentials** — `pydantic`, `tiktoken`
+
 ### Usage
 
 ```bash
@@ -30,6 +44,9 @@ docker run -p 6274:6274 -p 6277:6277 ghcr.io/av/tools npx @modelcontextprotocol/
 # -v cache:/app/cache - named docker volume
 # -v /path/to/my/cache:/app/cache - cache on the host
 docker run -v cache:/app/cache ghcr.io/av/tools uvx mcp-server-time
+
+# Use the agentic variant for Python-heavy workflows
+docker run ghcr.io/av/tools:agentic python3 -c "import pandas; print(pandas.__version__)"
 ```
 
 In docker compose:

@@ -75,10 +75,58 @@ jobs:
           labels: version=${{ github.run_id }}
           platforms: linux/amd64,linux/arm64
 
+  build-and-push-agentic:
+    runs-on: ubuntu-latest
+    needs: build-and-push-image
+
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      DOCKER_REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Agentic Image
+        if: github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.agentic
+          push: true
+          tags: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:agentic
+          labels: version=${{ github.run_id }}
+          platforms: linux/amd64,linux/arm64
+
+      - name: Build and Push Agentic Image (Tagged)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.agentic
+          push: true
+          tags: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:agentic-${{ github.ref_name }}
+          labels: version=${{ github.run_id }}
+          platforms: linux/amd64,linux/arm64
+
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
-    needs: build-and-push-image
+    needs: [build-and-push-image, build-and-push-agentic]
     if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
 
     permissions:
@@ -89,16 +137,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Determine image tag
+      - name: Determine image tags
         id: image-tag
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "tag=latest" >> $GITHUB_OUTPUT
+            echo "agentic_tag=agentic" >> $GITHUB_OUTPUT
           else
             echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "agentic_tag=agentic-${{ github.ref_name }}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Run Trivy vulnerability scanner (table output)
+      - name: Run Trivy on base image (table)
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: '${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.image-tag.outputs.tag }}'
@@ -109,19 +159,49 @@ jobs:
           DOCKER_REGISTRY: ghcr.io
           IMAGE_NAME: ${{ github.repository }}
 
-      - name: Run Trivy vulnerability scanner (SARIF output)
+      - name: Run Trivy on base image (SARIF)
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: '${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.image-tag.outputs.tag }}'
           format: 'sarif'
-          output: 'trivy-results.sarif'
+          output: 'trivy-results-base.sarif'
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
         env:
           DOCKER_REGISTRY: ghcr.io
           IMAGE_NAME: ${{ github.repository }}
 
-      - name: Upload Trivy results to GitHub Security tab
+      - name: Run Trivy on agentic image (table)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.image-tag.outputs.agentic_tag }}'
+          format: 'table'
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+        env:
+          DOCKER_REGISTRY: ghcr.io
+          IMAGE_NAME: ${{ github.repository }}
+
+      - name: Run Trivy on agentic image (SARIF)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.image-tag.outputs.agentic_tag }}'
+          format: 'sarif'
+          output: 'trivy-results-agentic.sarif'
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+        env:
+          DOCKER_REGISTRY: ghcr.io
+          IMAGE_NAME: ${{ github.repository }}
+
+      - name: Upload base image Trivy results
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: 'trivy-results-base.sarif'
+          category: 'trivy-base'
+
+      - name: Upload agentic image Trivy results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results-agentic.sarif'
+          category: 'trivy-agentic'

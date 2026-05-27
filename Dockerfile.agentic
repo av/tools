@@ -1,0 +1,26 @@
+FROM ghcr.io/av/tools:latest
+
+RUN uv pip install --system --no-cache-dir \
+    # File formats
+    PyPDF2 \
+    python-docx \
+    openpyxl \
+    Pillow \
+    lxml \
+    beautifulsoup4 \
+    markdownify \
+    chardet \
+    # Data analysis
+    pandas \
+    numpy \
+    matplotlib \
+    tabulate \
+    # Data access
+    requests \
+    httpx \
+    aiohttp \
+    sqlalchemy \
+    psycopg2-binary \
+    # Essentials
+    pydantic \
+    tiktoken
